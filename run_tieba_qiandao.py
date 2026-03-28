@@ -81,12 +81,33 @@ if __name__ == "__main__":
         page.get(f"https://tieba.baidu.com/i/i/forum?&pn={yeshu}")
         page._wait_loaded(15)
         for i in range(2, 22):
-            element = page.ele(
-                f'xpath://*[@id="like_pagelet"]/div[1]/div[1]/table/tbody/tr[{i}]/td[1]/a/@href'
-                page.close()
-                over = True
-                break
+            # 1. 修复：正确闭合括号，定位到对应的贴吧链接 <a> 标签
+            element = page.ele(f'xpath://*[@id="like_pagelet"]/div[1]/div[1]/table/tbody/tr[{i}]/td[1]/a')
+            
+            # 2. 修复：增加非空判断。如果找不到元素，说明当前页遍历完了
+            if not element:
+                if i == 2:  # 如果当前页的第一个就找不到，说明到了最后一页且没有数据了
+                    page.close()
+                    over = True
+                break  # 跳出本页的 for 循环
+            
+            # 3. 修复：定义缺失的变量 tieba_url 和 name
+            tieba_url = element.attr('href')
+            name = element.text
+            
+            if not tieba_url:
+                continue
+                
+            # 如果获取到的是相对路径（以 / 开头），需要拼接完整的百度贴吧域名
+            if tieba_url.startswith('/'):
+                tieba_url = f"https://tieba.baidu.com{tieba_url}"
+                
+            # 跳转到该贴吧页面
             page.get(tieba_url)
+            page.wait.eles_loaded('xpath://*[@id="signstar_wrapper"]/a/span[1]',timeout=30)
+            
+            # ========== 下面继续保持你原有的优化后签到逻辑 ==========
+            # 统一判断签到状态（兼容新旧版）
             page.wait.eles_loaded('xpath://*[@id="signstar_wrapper"]/a/span[1]',timeout=30)
             # ========== 优化后的核心签到逻辑 ==========
             # 统一判断签到状态（兼容新旧版）
