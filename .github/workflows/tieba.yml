@@ -18,10 +18,9 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install Chrome (Chromium)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y chromium-browser
+      - name: Setup Chrome
+        id: setup-chrome
+        uses: browser-actions/setup-chrome@v1
 
       - name: Install dependencies
         run: |
@@ -32,5 +31,6 @@ jobs:
         env:
           TIEBA_COOKIES: ${{ secrets.TIEBA_COOKIES }}
           SendKey: ${{ secrets.SendKey }}
+          CHROME_BIN: ${{ steps.setup-chrome.outputs.chrome-path }}
         run: |
           python run_tieba_qiandao.py

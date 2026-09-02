@@ -64,7 +64,13 @@ if __name__ == "__main__":
     # 通知信息
     notice = ''
     co = ChromiumOptions().headless()
-    chromium_path = shutil.which("chromium-browser")
+    chromium_path = (
+        os.environ.get("CHROME_BIN")
+        or shutil.which("chromium-browser")
+        or shutil.which("chromium")
+        or shutil.which("google-chrome")
+        or shutil.which("google-chrome-stable")
+    )
     if chromium_path:
         co.set_browser_path(chromium_path)
     page = ChromiumPage(co)
