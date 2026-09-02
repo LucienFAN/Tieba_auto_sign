@@ -64,6 +64,9 @@ if __name__ == "__main__":
     # 通知信息
     notice = ''
     co = ChromiumOptions().headless()
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        co.set_argument("--no-sandbox")
+        co.set_argument("--disable-dev-shm-usage")
     chromium_path = (
         os.environ.get("CHROME_BIN")
         or shutil.which("chromium-browser")
